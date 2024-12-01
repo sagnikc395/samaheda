@@ -24,6 +24,13 @@ func main() {
 			log.Fatal(err)
 		}
 		cmd = strings.TrimSpace(cmd)
+
+		cmds := strings.Split(cmd, " ")
+
+		if cmds[0] == "exit" {
+			os.Exit(0)
+		}
+
 		fmt.Printf("%s: command not found\n", cmd)
 	}
 }

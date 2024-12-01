@@ -23,7 +23,7 @@ func checkPath(program string) (string, error) {
 	_ = paths
 	execpath, err := exec.LookPath(program)
 	if err != nil {
-		log.Fatal(err)
+		return program, err
 	}
 
 	absPath, err := filepath.Abs(execpath)
@@ -56,17 +56,43 @@ func main() {
 		}
 		cmd = strings.TrimSpace(cmd)
 		cmds := strings.Split(cmd, " ")
-		if cmds[0] == "echo" {
+
+		if len(cmds) == 0 {
+			continue
+		}
+
+		// if cmds[0] == "echo" {
+		// 	fmt.Println(strings.Join(cmds[1:], " "))
+		// } else if cmds[0] == "exit" {
+		// 	os.Exit(0)
+		// } else if cmds[0] == "type" {
+		// 	result, err := checkPath(cmds[1])
+		// 	if err != nil {
+		// 		fmt.Printf("%s: not found\n", result)
+		// 	}
+		// 	fmt.Printf("%s is %s\n", cmds[1], result)
+		// } else {
+		// 	fmt.Printf("%s: command not found\n", cmd)
+		// }
+
+		switch cmds[0] {
+		case "echo":
 			fmt.Println(strings.Join(cmds[1:], " "))
-		} else if cmds[0] == "exit" {
+		case "exit":
 			os.Exit(0)
-		} else if cmds[0] == "type" {
+		case "type":
+			if len(cmds) < 2 {
+				fmt.Println("type: missing command name")
+				continue
+			}
+
 			result, err := checkPath(cmds[1])
 			if err != nil {
-				fmt.Printf("%s: not found\n", result)
+				fmt.Printf("%s: not found\n", cmds[1])
+				continue
 			}
 			fmt.Printf("%s is %s\n", cmds[1], result)
-		} else {
+		default:
 			fmt.Printf("%s: command not found\n", cmd)
 		}
 	}

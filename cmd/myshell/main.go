@@ -76,10 +76,10 @@ func main() {
 		// }
 
 		switch cmds[0] {
-		case "echo":
-			fmt.Println(strings.Join(cmds[1:], " "))
 		case "exit":
 			os.Exit(0)
+		case "echo":
+			fmt.Println("echo is a shell builtin")
 		case "type":
 			if len(cmds) < 2 {
 				fmt.Println("type: missing command name")

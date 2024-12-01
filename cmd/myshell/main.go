@@ -91,7 +91,7 @@ func main() {
 				fmt.Printf("%s: not found\n", cmds[1])
 				continue
 			}
-			if cmds[1] == "echo" {
+			if cmds[1] == "echo" || cmds[1] == "exit" || cmds[1] == "type" {
 				fmt.Printf("%s is a shell builtin\n", cmds[1])
 			} else {
 				fmt.Printf("%s is %s\n", cmds[1], result)

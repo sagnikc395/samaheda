@@ -31,6 +31,14 @@ func checkPath(program string) (string, error) {
 		return program, err
 	}
 
+	// for _, path := range paths {
+	// 	if _, err := os.Stat(path); err != nil {
+	// 		fmt.Printf("- %s (not accessible)\n", path)
+	// 	} else {
+	// 		fmt.Printf("- %s\n", path)
+	// 	}
+	// }
+
 	return absPath, nil
 }
 
@@ -52,11 +60,26 @@ func main() {
 		if len(cmds) == 0 {
 			continue
 		}
+
+		// if cmds[0] == "echo" {
+		// 	fmt.Println(strings.Join(cmds[1:], " "))
+		// } else if cmds[0] == "exit" {
+		// 	os.Exit(0)
+		// } else if cmds[0] == "type" {
+		// 	result, err := checkPath(cmds[1])
+		// 	if err != nil {
+		// 		fmt.Printf("%s: not found\n", result)
+		// 	}
+		// 	fmt.Printf("%s is %s\n", cmds[1], result)
+		// } else {
+		// 	fmt.Printf("%s: command not found\n", cmd)
+		// }
+
 		switch cmds[0] {
+		case "echo":
+			fmt.Println(strings.Join(cmds[1:], " "))
 		case "exit":
 			os.Exit(0)
-		case "echo":
-			fmt.Println("echo is a shell builtin")
 		case "type":
 			if len(cmds) < 2 {
 				fmt.Println("type: missing command name")
@@ -68,7 +91,11 @@ func main() {
 				fmt.Printf("%s: not found\n", cmds[1])
 				continue
 			}
-			fmt.Printf("%s is %s\n", cmds[1], result)
+			if cmds[1] == "echo" {
+				fmt.Printf("%s is a shell builtin", cmds[1])
+			} else {
+				fmt.Printf("%s is %s\n", cmds[1], result)
+			}
 		default:
 			fmt.Printf("%s: command not found\n", cmd)
 		}

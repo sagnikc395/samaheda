@@ -1,3 +1,7 @@
+## samaheda
+
+my solution of building a shell in Go.
+
 [![progress-banner](https://backend.codecrafters.io/progress/shell/c17372e8-3e09-4d8f-9c61-fda0e8f3362e)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
 
 This is a starting point for Go solutions to the

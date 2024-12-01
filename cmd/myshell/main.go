@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 // Ensures gofmt doesn't remove the "fmt" import in stage 1 (feel free to remove this!)
@@ -16,9 +17,11 @@ func main() {
 	fmt.Fprint(os.Stdout, "$ ")
 
 	// Wait for user input
-	cmd, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	reader := bufio.NewReader(os.Stdin)
+	cmd, err := reader.ReadString('\n')
 	if err != nil {
 		log.Fatal(err)
 	}
+	cmd = strings.TrimSpace(cmd)
 	fmt.Printf("%s: command not found\n", cmd)
 }

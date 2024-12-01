@@ -29,6 +29,16 @@ func main() {
 			fmt.Println(strings.Join(cmds[1:], " "))
 		} else if cmds[0] == "exit" {
 			os.Exit(0)
+		} else if cmds[0] == "type" {
+			if cmds[1] == "echo" {
+				fmt.Println("echo is a shell builtin")
+			} else if cmds[1] == "exit" {
+				fmt.Println("exit is a shell builtin")
+			} else if cmds[1] == "type" {
+				fmt.Println("type is a shell builtin")
+			} else {
+				fmt.Println("invalid_command: not found")
+			}
 		} else {
 			fmt.Printf("%s: command not found\n", cmd)
 		}

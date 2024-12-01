@@ -92,7 +92,7 @@ func main() {
 				continue
 			}
 			if cmds[1] == "echo" {
-				fmt.Printf("%s is a shell builtin", cmds[1])
+				fmt.Printf("%s is a shell builtin\n", cmds[1])
 			} else {
 				fmt.Printf("%s is %s\n", cmds[1], result)
 			}

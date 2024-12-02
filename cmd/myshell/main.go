@@ -38,6 +38,20 @@ func checkPath(program string) (string, error) {
 	return absPath, nil
 }
 
+func execCommand(program string) error {
+
+	commands := strings.Split(program, " ")
+	cmd := exec.Command(commands[0], commands...)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	//debug
+	fmt.Printf("%s\n", out)
+
+	return nil
+}
+
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	for {
@@ -76,7 +90,11 @@ func main() {
 			fmt.Printf("%s is %s\n", targetCmd, result)
 
 		default:
-			fmt.Printf("%s: command not found\n", cmd)
+			// fmt.Printf("%s: command not found\n", cmd)
+			err := execCommand(cmd)
+			if err != nil {
+				fmt.Printf("%s: command not found\n", cmd)
+			}
 		}
 	}
 }

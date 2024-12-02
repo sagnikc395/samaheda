@@ -47,7 +47,7 @@ func execCommand(program string) error {
 		return err
 	}
 
-	cmd := exec.Command(cmdExists, commands...)
+	cmd := exec.Command(cmdExists, commands[1:]...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return err

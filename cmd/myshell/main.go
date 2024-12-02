@@ -10,15 +10,11 @@ import (
 	"strings"
 )
 
-// shell builtins
 var builtins = map[string]bool{
 	"echo": true,
 	"exit": true,
 	"type": true,
 }
-
-//check if the program present in PATH
-//https://xnacly.me/posts/2023/go-check-for-executable/#:~:text=To%20check%20if%20an%20executable,its%20exported%20LookPath()%20function.
 
 func checkPath(program string) (string, error) {
 	pathenv := os.Getenv("PATH")
@@ -40,8 +36,6 @@ func checkPath(program string) (string, error) {
 
 func execCommand(program string) (string, error) {
 	commands := strings.Split(program, " ")
-	//first check if present in path or not
-
 	cmdExists, err := checkPath(commands[0])
 	if err != nil {
 		return "", err
@@ -52,10 +46,7 @@ func execCommand(program string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	result := string(out)
-	//issue that I got is returning \r\n$ , needed to trimspace
-
-	return strings.TrimRight(result, "\r\n"), nil
+	return strings.TrimRight(string(out), "\r\n"), nil // Trim trailing newlines
 }
 
 func main() {
@@ -71,41 +62,41 @@ func main() {
 		if len(cmds) == 0 || cmd == "" {
 			continue
 		}
+
 		switch cmds[0] {
 		case "echo":
-			fmt.Println(strings.Join(cmds[1:], " "))
+			fmt.Print(strings.Join(cmds[1:], " ")) // Remove implicit newline
 		case "exit":
 			os.Exit(0)
 		case "type":
 			if len(cmds) < 2 {
-				fmt.Println("type: missing command name")
+				fmt.Print("type: missing command name")
 				continue
 			}
 
 			targetCmd := cmds[1]
 			if _, exists := builtins[targetCmd]; exists {
-				fmt.Printf("%s is a shell builtin\n", targetCmd)
+				fmt.Printf("%s is a shell builtin", targetCmd)
 				continue
 			}
 
 			result, err := checkPath(targetCmd)
 			if err != nil {
-				fmt.Printf("%s: not found\n", targetCmd)
+				fmt.Printf("%s: not found", targetCmd)
 				continue
 			}
-			fmt.Printf("%s is %s\n", targetCmd, result)
+			fmt.Printf("%s is %s", targetCmd, result)
 
 		default:
-			// fmt.Printf("%s: command not found\n", cmd)
 			result, err := execCommand(cmd)
 			if err != nil {
-				fmt.Printf("%s: command not found\n", cmd)
+				fmt.Printf("%s: command not found", cmd)
 				continue
 			}
 			if result != "" {
 				fmt.Print(result)
 			}
 		}
-		fmt.Print("\n")
+		fmt.Print("\n") // Add a single newline after each command
 	}
 }

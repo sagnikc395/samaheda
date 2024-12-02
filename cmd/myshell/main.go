@@ -76,7 +76,7 @@ func main() {
 
 			targetCmd := cmds[1]
 			if _, exists := builtins[targetCmd]; exists {
-				fmt.Printf("%s is a shell builtin", targetCmd)
+				fmt.Printf("%s is a shell builtin\n", targetCmd)
 				continue
 			}
 
@@ -85,12 +85,12 @@ func main() {
 				fmt.Printf("%s: not found\n", targetCmd)
 				continue
 			}
-			fmt.Printf("%s is %s", targetCmd, result)
+			fmt.Printf("%s is %s\n", targetCmd, result)
 
 		default:
 			result, err := execCommand(cmd)
 			if err != nil {
-				fmt.Printf("%s: command not found", cmd)
+				fmt.Printf("%s: command not found\n", cmd)
 				continue
 			}
 			if result != "" {

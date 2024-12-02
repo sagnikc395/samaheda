@@ -46,7 +46,7 @@ func execCommand(program string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return strings.TrimRight(string(out), "\r\n"), nil // Trim trailing newlines
+	return strings.TrimRight(string(out), "\r\n"), nil
 }
 
 func main() {
@@ -63,40 +63,43 @@ func main() {
 			continue
 		}
 
+		output := ""
 		switch cmds[0] {
 		case "echo":
-			fmt.Print(strings.Join(cmds[1:], " ")) // Remove implicit newline
+			output = strings.Join(cmds[1:], " ")
 		case "exit":
 			os.Exit(0)
 		case "type":
 			if len(cmds) < 2 {
-				fmt.Print("type: missing command name")
-				continue
+				output = "type: missing command name"
+				break
 			}
 
 			targetCmd := cmds[1]
 			if _, exists := builtins[targetCmd]; exists {
-				fmt.Printf("%s is a shell builtin\n", targetCmd)
-				continue
+				output = fmt.Sprintf("%s is a shell builtin", targetCmd)
+				break
 			}
 
 			result, err := checkPath(targetCmd)
 			if err != nil {
-				fmt.Printf("%s: not found\n", targetCmd)
-				continue
+				output = fmt.Sprintf("%s: not found", targetCmd)
+				break
 			}
-			fmt.Printf("%s is %s\n", targetCmd, result)
+			output = fmt.Sprintf("%s is %s", targetCmd, result)
 
 		default:
 			result, err := execCommand(cmd)
 			if err != nil {
-				fmt.Printf("%s: command not found", cmd)
-				continue
+				output = fmt.Sprintf("%s: command not found", cmd)
+				break
 			}
-			if result != "" {
-				fmt.Print(result)
-			}
+			output = result
 		}
-		fmt.Print("\n") // Add a single newline after each command
+
+		if output != "" {
+			fmt.Print(output)
+			fmt.Print("\n")
+		}
 	}
 }

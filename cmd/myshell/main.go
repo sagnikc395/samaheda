@@ -53,7 +53,9 @@ func execCommand(program string) (string, error) {
 		return "", err
 	}
 	result := string(out)
-	return result, nil
+	//issue that I got is returning \r\n$ , needed to trimspace
+
+	return strings.TrimRight(result, "\r\n"), nil
 }
 
 func main() {
@@ -66,7 +68,7 @@ func main() {
 		}
 		cmd = strings.TrimSpace(cmd)
 		cmds := strings.Split(cmd, " ")
-		if len(cmds) == 0 {
+		if len(cmds) == 0 || cmd == "" {
 			continue
 		}
 		switch cmds[0] {
@@ -98,8 +100,12 @@ func main() {
 			result, err := execCommand(cmd)
 			if err != nil {
 				fmt.Printf("%s: command not found\n", cmd)
+				continue
 			}
-			fmt.Printf("%s\n", result)
+			if result != "" {
+				fmt.Print(result)
+			}
 		}
+		fmt.Print("\n")
 	}
 }

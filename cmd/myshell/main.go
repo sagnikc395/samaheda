@@ -39,9 +39,15 @@ func checkPath(program string) (string, error) {
 }
 
 func execCommand(program string) error {
-
 	commands := strings.Split(program, " ")
-	cmd := exec.Command(commands[0], commands...)
+	//first check if present in path or not
+
+	cmdExists, err := checkPath(commands[0])
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command(cmdExists, commands...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return err

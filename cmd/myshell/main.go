@@ -82,7 +82,7 @@ func main() {
 
 			result, err := checkPath(targetCmd)
 			if err != nil {
-				fmt.Printf("%s: not found", targetCmd)
+				fmt.Printf("%s: not found\n", targetCmd)
 				continue
 			}
 			fmt.Printf("%s is %s", targetCmd, result)

@@ -52,8 +52,7 @@ func execCommand(program string) error {
 	if err != nil {
 		return err
 	}
-	//debug
-	fmt.Printf("%s\n", out)
+	_ = out
 
 	return nil
 }

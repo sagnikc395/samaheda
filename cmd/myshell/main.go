@@ -38,24 +38,22 @@ func checkPath(program string) (string, error) {
 	return absPath, nil
 }
 
-func execCommand(program string) error {
+func execCommand(program string) (string, error) {
 	commands := strings.Split(program, " ")
 	//first check if present in path or not
 
 	cmdExists, err := checkPath(commands[0])
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	cmd := exec.Command(cmdExists, commands[1:]...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return err
+		return "", err
 	}
-	result := out
-	fmt.Printf("%s\n", result)
-
-	return nil
+	result := string(out)
+	return result, nil
 }
 
 func main() {
@@ -97,10 +95,11 @@ func main() {
 
 		default:
 			// fmt.Printf("%s: command not found\n", cmd)
-			err := execCommand(cmd)
+			result, err := execCommand(cmd)
 			if err != nil {
 				fmt.Printf("%s: command not found\n", cmd)
 			}
+			fmt.Printf("%s\n", result)
 		}
 	}
 }

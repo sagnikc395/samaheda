@@ -90,7 +90,7 @@ func main() {
 		default:
 			result, err := execCommand(cmd)
 			if err != nil {
-				fmt.Printf("%s: command not found\n", cmd)
+				fmt.Printf("%s: command not found", cmd)
 				continue
 			}
 			if result != "" {

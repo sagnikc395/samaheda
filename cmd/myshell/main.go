@@ -14,6 +14,7 @@ var builtins = map[string]bool{
 	"echo": true,
 	"exit": true,
 	"type": true,
+	"pwd":  true,
 }
 
 func checkPath(program string) (string, error) {
@@ -49,6 +50,22 @@ func execCommand(program string) (string, error) {
 	return strings.TrimRight(string(out), "\r\n"), nil
 }
 
+func printAbsolutePath(program string) (string, error) {
+	//print the full absolute path of the given program
+
+	path, err := exec.LookPath(program)
+	if err != nil {
+		return "", err
+	}
+
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+
+	return absPath, nil
+}
+
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	for {
@@ -65,6 +82,12 @@ func main() {
 
 		output := ""
 		switch cmds[0] {
+		case "pwd":
+			result, err := printAbsolutePath(cmds[0])
+			if err != nil {
+				log.Fatal(err)
+			}
+			output = result
 		case "echo":
 			output = strings.Join(cmds[1:], " ")
 		case "exit":

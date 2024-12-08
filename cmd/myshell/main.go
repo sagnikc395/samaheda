@@ -56,6 +56,19 @@ func printCurrentWorkingDir() string {
 	return dir
 }
 
+func changeDirIfExists(path string) bool {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	}
+
+	err := os.Chdir(path)
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	for {
@@ -74,7 +87,11 @@ func main() {
 		switch cmds[0] {
 		case "pwd":
 			output = printCurrentWorkingDir()
-
+		case "cd":
+			result := changeDirIfExists(cmds[1])
+			if !result {
+				output = fmt.Sprintf("cd %s: No such file or directory", cmds[1])
+			}
 		case "echo":
 			output = strings.Join(cmds[1:], " ")
 		case "exit":

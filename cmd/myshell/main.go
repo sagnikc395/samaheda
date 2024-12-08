@@ -51,13 +51,9 @@ func execCommand(program string) (string, error) {
 }
 
 func printCurrentWorkingDir() string {
-	execPath, err := os.Executable()
+	dir, err := os.Getwd()
 	_ = err
-	execDir := filepath.Dir(execPath)
-	absExecDir, err := filepath.Abs(execDir)
-
-	_ = err
-	return absExecDir
+	return dir
 }
 
 func main() {

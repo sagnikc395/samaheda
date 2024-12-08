@@ -54,6 +54,18 @@ func printCurrentWorkingDir() string {
 }
 
 func changeDirIfExists(path string) bool {
+
+	//check if the path given has ~ prefix , then change to dir
+	if strings.HasPrefix(path, "~") {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return false
+		}
+
+		//replace ~ with actual home dir path
+		path = strings.Replace(path, "~", homeDir, 1)
+	}
+
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return false

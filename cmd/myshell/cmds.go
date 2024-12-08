@@ -12,7 +12,7 @@ var builtins = map[string]bool{
 	"exit": true,
 	"type": true,
 	"pwd":  true,
-}
+	"cd":   true}
 
 func checkPath(program string) (string, error) {
 	pathenv := os.Getenv("PATH")

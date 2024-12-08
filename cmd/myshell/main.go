@@ -90,7 +90,7 @@ func main() {
 		case "cd":
 			result := changeDirIfExists(cmds[1])
 			if !result {
-				output = fmt.Sprintf("cd %s: No such file or directory", cmds[1])
+				output = fmt.Sprintf("cd: %s: No such file or directory", cmds[1])
 			}
 		case "echo":
 			output = strings.Join(cmds[1:], " ")

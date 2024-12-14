@@ -3,69 +3,63 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
+	"os/exec"
 	"strings"
 )
 
+var Cmds = make(map[string]func(args []string) error)
+
 func main() {
-	reader := bufio.NewReader(os.Stdin)
+	Cmds["exit"] = handleExit
+	Cmds["echo"] = handleEcho
+	Cmds["type"] = handleType
+	Cmds["pwd"] = handlePwd
+	Cmds["cd"] = handleCd
+
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
-		cmd, err := reader.ReadString('\n')
+		input, err := bufio.NewReader(os.Stdin).ReadString('\n')
 		if err != nil {
-			log.Fatal(err)
+			fmt.Fprintln(os.Stderr, err)
+			return
 		}
-		cmd = strings.TrimSpace(cmd)
-		cmds := strings.Split(cmd, " ")
-		if len(cmds) == 0 || cmd == "" {
-			continue
-		}
-
-		output := ""
-		switch cmds[0] {
-		case "pwd":
-			output = printCurrentWorkingDir()
-		case "cd":
-			result := changeDirIfExists(cmds[1])
-			if !result {
-				output = fmt.Sprintf("cd: %s: No such file or directory", cmds[1])
-			}
-		case "echo":
-			output = strings.Join(cmds[1:], " ")
-		case "exit":
-			os.Exit(0)
-		case "type":
-			if len(cmds) < 2 {
-				output = "type: missing command name"
+		s := strings.Trim(input, "\r\n")
+		var tokens []string
+		for {
+			start := strings.Index(s, "'")
+			if start == -1 {
+				tokens = append(tokens, strings.Fields(s)...)
 				break
 			}
+			tokens = append(tokens, strings.Fields(s[:start])...)
+			s = s[start+1:]
+			end := strings.Index(s, "'")
+			token := s[:end]
+			tokens = append(tokens, token)
+			s = s[end+1:]
+		}
 
-			targetCmd := cmds[1]
-			if _, exists := builtins[targetCmd]; exists {
-				output = fmt.Sprintf("%s is a shell builtin", targetCmd)
-				break
-			}
-
-			result, err := checkPath(targetCmd)
+		cmd := strings.ToLower(tokens[0])
+		var args []string
+		if len(tokens) > 1 {
+			args = tokens[1:]
+		}
+		if fn, ok := Cmds[cmd]; ok {
+			err := fn(args)
 			if err != nil {
-				output = fmt.Sprintf("%s: not found", targetCmd)
-				break
+				fmt.Fprintln(os.Stderr, err)
 			}
-			output = fmt.Sprintf("%s is %s", targetCmd, result)
-
-		default:
-			result, err := execCommand(cmd)
+		} else if path, ok := locateCmd(cmd); ok {
+			c := exec.Command(path, args...)
+			o, err := c.Output()
 			if err != nil {
-				output = fmt.Sprintf("%s: command not found", cmd)
-				break
+				fmt.Fprintln(os.Stderr, err)
+			} else {
+				fmt.Fprint(os.Stdout, string(o))
 			}
-			output = result
-		}
-
-		if output != "" {
-			fmt.Print(output)
-			fmt.Print("\n")
+		} else {
+			fmt.Fprintf(os.Stdout, "%s: command not found\n", cmd)
 		}
 	}
 }

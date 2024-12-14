@@ -1,85 +1,107 @@
 package main
 
 import (
+	"fmt"
 	"os"
-	"os/exec"
-	"path/filepath"
+	"strconv"
 	"strings"
 )
 
-var builtins = map[string]bool{
-	"echo": true,
-	"exit": true,
-	"type": true,
-	"pwd":  true,
-	"cd":   true}
+func handleExit(args []string) error {
+	var (
+		exitCode int
+		err      error
+	)
 
-func checkPath(program string) (string, error) {
-	pathenv := os.Getenv("PATH")
-	paths := strings.Split(pathenv, string(os.PathListSeparator))
-
-	_ = paths
-	execpath, err := exec.LookPath(program)
-	if err != nil {
-		return program, err
-	}
-
-	absPath, err := filepath.Abs(execpath)
-	if err != nil {
-		return program, err
-	}
-
-	return absPath, nil
-}
-
-func execCommand(program string) (string, error) {
-	commands := strings.Split(program, " ")
-	cmdExists, err := checkPath(commands[0])
-	if err != nil {
-		return "", err
-	}
-
-	cmd := exec.Command(cmdExists, commands[1:]...)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimRight(string(out), "\r\n"), nil
-}
-
-func printCurrentWorkingDir() string {
-	dir, err := os.Getwd()
-	_ = err
-	return dir
-}
-
-func changeDirIfExists(path string) bool {
-
-	//check if the path given has ~ prefix , then change to dir
-	if strings.HasPrefix(path, "~") {
-		homeDir, err := os.UserHomeDir()
+	if len(args) == 1 {
+		exitCode, err = strconv.Atoi(args[0])
 		if err != nil {
-			return false
+			return err
+		}
+	}
+
+	os.Exit(exitCode)
+	return nil
+}
+
+func handleEcho(args []string) error {
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stdout)
+		return nil
+	}
+
+	for i := 0; i < len(args)-1; i++ {
+		fmt.Fprintf(os.Stdout, "%s ", args[i])
+	}
+	fmt.Fprintln(os.Stdout, args[len(args)-1])
+	return nil
+}
+
+func locateCmd(cmd string) (string, bool) {
+	path := os.Getenv("PATH")
+	dirs := strings.Split(path, ":")
+	for _, dir := range dirs {
+		entries, err := os.ReadDir(dir)
+		if err != nil {
+			continue
 		}
 
-		//replace ~ with actual home dir path
-		path = strings.Replace(path, "~", homeDir, 1)
+		for _, e := range entries {
+			if e.IsDir() {
+				continue
+			}
+
+			parts := strings.Split(e.Name(), ".")
+			name := parts[0]
+			if cmd == name {
+				return fmt.Sprintf("%s/%s", dir, name), true
+			}
+		}
+	}
+	return "", false
+}
+
+func handleType(args []string) error {
+	if len(args) != 1 {
+		return nil
 	}
 
-	absPath, err := filepath.Abs(path)
+	cmd := args[0]
+	if _, ok := Cmds[cmd]; ok {
+		fmt.Fprintf(os.Stderr, "%s is a shell builtin\n", cmd)
+		return nil
+	}
+
+	if path, ok := locateCmd(cmd); ok {
+		fmt.Fprintf(os.Stdout, "%s is %s\n", cmd, path)
+		return nil
+	}
+
+	fmt.Fprintf(os.Stderr, "%s: not found\n", cmd)
+	return nil
+}
+
+func handlePwd(args []string) error {
+	dir, err := os.Getwd()
 	if err != nil {
-		return false
+		return err
 	}
 
-	//check if dir exists
-	if _, err := os.Stat(absPath); os.IsNotExist(err) {
-		return false
-	}
+	fmt.Fprintln(os.Stdout, dir)
+	return nil
+}
 
-	//to change to dir
-	err = os.Chdir(absPath)
+func handleCd(args []string) error {
+	if len(args) == 0 {
+		return nil
+	}
+	dir := args[0]
+	if dir == "~" {
+		dir = os.Getenv("HOME")
+	}
+	err := os.Chdir(dir)
 	if err != nil {
-		return false
+		fmt.Fprintf(os.Stderr, "cd: %s: No such file or directory\n", dir)
 	}
-	return true
+	return nil
 }

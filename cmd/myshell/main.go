@@ -27,7 +27,7 @@ func main() {
 		s := strings.Trim(input, "\r\n")
 		var tokens []string
 		for {
-			start := strings.IndexAny(s, "'")
+			start := strings.IndexAny(s, "'\"")
 			if start == -1 {
 				tokens = append(tokens, strings.Fields(s)...)
 				break

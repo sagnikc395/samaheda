@@ -1,3 +1,3 @@
 ## samaheda
 
-Writing a Shell in Go.
+Writing a Shell in Rust.
